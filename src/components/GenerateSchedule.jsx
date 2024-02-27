@@ -170,7 +170,7 @@ const SubmitButton = styled.div`
   height: 40px;
   width: 181px;
   border: 1px solid black;
-  border-radius: 5px;
+  border-radius: 0.5rem;
   align-items: center;
   justify-content: center;
   cursor: pointer;

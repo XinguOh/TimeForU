@@ -14,7 +14,10 @@ export default function EventPage() {
         }
         return response.json();
       })
-      .then((data) => setEventData(data))
+      .then((data) => {
+        setEventData(data);
+        document.title = `Meet : ${data.title}` || "Meet: For U"; // eventData.title이 없는 경우 기본값 사용
+      })
       .catch((error) => {
         console.error("Error fetching event data:", error);
         alert("존재하지 않는 링크입니다. 새로 생성해주세요.");
@@ -43,7 +46,7 @@ export default function EventPage() {
 
   return (
     <AppContainer>
-    <h1>Meet : For U</h1>
+      <h1>Meet : For U</h1>
       <h2>{eventData.title}</h2>
       <AvailabilityContainer>
         <p>Start Date: {new Date(eventData.startDate).toLocaleString()}</p>
