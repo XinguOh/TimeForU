@@ -19,7 +19,9 @@
 }
 
 .calendar-container {
-    color :black;
+  display : flex;
+  flex-direction: row;
+  margin-top : 10px;
 }
 
 .my-custom-datepicker {
@@ -27,7 +29,7 @@
   padding-left: 10px;
   border: 1px solid black;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
   &:hover {
     background-color: #3d91ff;
   }

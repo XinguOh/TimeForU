@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DateRangePicker } from "react-date-range";
 import DatePicker from "react-datepicker";
-import styled from 'styled-components';
+import styled from "styled-components";
 import "react-date-range/dist/styles.css"; // Main style file
 import "react-date-range/dist/theme/default.css"; // Theme file
 import "react-datepicker/dist/react-datepicker.css"; // DatePicker style
@@ -25,9 +25,28 @@ export default function MyCalendarWithTime() {
     // Reset default time only for endTime when selecting date range
     setEndTime(ranges.selection.endDate); // Only update endTime
   };
+  const handleButtonClick = async () => {
+    const eventDetails = {
+      startDate: dateRange[0].startDate,
+      endDate: dateRange[0].endDate,
+      startTime,
+      endTime,
+    };
+  
+    const response = await fetch('http://localhost:3001/create-event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(eventDetails),
+    });
+  
+    const responseData = await response.json();
+    console.log(responseData.message);
+  };
 
   return (
-    <div className="calendar-container">
+    <CalendarContainer>
       <DateRangePicker
         ranges={dateRange}
         onChange={handleSelect}
@@ -38,10 +57,7 @@ export default function MyCalendarWithTime() {
           lineHeight: "30px", // 예시: 날짜 선택 영역 높이 30px
         }}
       />
-      
-    <AppInputContainer placeholder='Title'></AppInputContainer>
-      <RightContainer
-      >
+      <DateContainer>
         <div>
           <h2>Start Time :</h2>
           <DatePicker
@@ -68,23 +84,42 @@ export default function MyCalendarWithTime() {
             className="my-custom-datepicker" // Custom class for styling
           />
         </div>
-      </RightContainer>
-    </div>
+        
+      <SubmitButton onClick={handleButtonClick}>일정 생성하기</SubmitButton>
+      </DateContainer>
+    </CalendarContainer>
   );
 }
 
-//입력 컨테이너
-const AppInputContainer = styled.input`
-  width: 200px;
-  height: 30px;
-  font-size: 20px;
-  margin-bottom: 10px;
-  text-align: center;
-  
+const CalendarContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; // Add space between elements
+  margin-top: 10px;
 `;
 
-// 우측 컨테이너
-const RightContainer = styled.div`
+
+// 날짜 컨테이너
+const DateContainer = styled.div`
   display : flex;
-  margin
+  flex-direction : column;
+  margin-left : 20px;
+`;
+
+const SubmitButton = styled.div`
+display: flex;
+margin-top : 30px;
+height : 40px;
+width : 183px;
+border : 1px solid black;
+border-radius : 10px;
+align-items : center;
+justify-content : center;
+cursor : pointer;
+background-color : white;
+color : black;
+transition : 0.2s ease-in-out;
+&:hover {
+  background-color : #3d91ff;
+}
 `
