@@ -1,13 +1,22 @@
 import React from 'react';
-import './App.css'; // CSS 파일 import
 import MyCalendarWithTime from './components/MyCalendarWithTime';
+import styled from 'styled-components';
 
 export default function App() {
   return (
-    <div className="app-container">
+    <AppContainer>
       <h1>Meet For U</h1>
-      <input className='app-input-container' placeholder='Title'></input>
       <MyCalendarWithTime/>
-    </div>
+    </AppContainer>
   );
 }
+
+//전체 앱 컨테이너
+const AppContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Lato';
+  color: white;
+`;
+
