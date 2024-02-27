@@ -27,24 +27,29 @@ export default function MyCalendarWithTime() {
   };
   const handleButtonClick = async () => {
     const eventDetails = {
-      startDate: dateRange[0].startDate,
-      endDate: dateRange[0].endDate,
-      startTime,
-      endTime,
+      startDate: dateRange[0].startDate.toISOString(),
+      endDate: dateRange[0].endDate.toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
     };
   
-    const response = await fetch('http://localhost:3001/create-event', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(eventDetails),
-    });
-  
-    const responseData = await response.json();
-    console.log(responseData.message);
+    // 서버에 데이터 전송
+    try {
+      const response = await fetch('http://localhost:5000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventDetails),
+      });
+      const data = await response.json();
+      console.log(data); // 생성된 랜덤 링크를 확인
+      // 생성된 링크로 리디렉션 또는 사용자에게 링크 표시
+    } catch (error) {
+      console.error("Error submitting event:", error);
+    }
   };
-
+  
   return (
     <CalendarContainer>
       <DateRangePicker

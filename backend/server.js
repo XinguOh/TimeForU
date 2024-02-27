@@ -1,28 +1,34 @@
+// server.js
 const express = require('express');
-const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
-const PORT = 3001; // Ensure this is different from your front-end port
+const PORT = 3001;
 
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json()); // JSON 파싱을 위한 미들웨어
 
-// CORS headers to allow requests from your front-end domain
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
+// 임시 저장소
+let events = {};
+
+app.post('/api/events', (req, res) => {
+  const { startDate, endDate, startTime, endTime } = req.body;
+  // UUID 또는 다른 방법으로 유니크한 ID 생성
+  const eventId = Date.now().toString(); // 예시로 Date.now() 사용
+  events[eventId] = req.body;
+  
+  // 생성된 랜덤 링크 반환
+  res.json({ link: `http://localhost:5000/events/${eventId}` });
 });
 
-// POST endpoint for creating an event
-app.post('/create-event', (req, res) => {
-  const { startDate, endDate, startTime, endTime } = req.body;
-
-  // Here, you would typically save the event data to a database
-  console.log('Creating event with the following details:', startDate, endDate, startTime, endTime);
-
-  // Send a response back to the front-end
-  res.json({ message: 'Event created successfully' });
+app.get('/events/:id', (req, res) => {
+  const { id } = req.params;
+  if (events[id]) {
+    res.json(events[id]);
+  } else {
+    res.status(404).send('Event not found');
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
