@@ -28,6 +28,8 @@
   height: 20px;
   padding-left: 10px;
   border: 1px solid black;
+  
+  border-radius : 5px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
   &:hover {
