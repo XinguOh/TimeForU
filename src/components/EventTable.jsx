@@ -146,6 +146,7 @@ export default function EventTable() {
         {Object.entries(timeSlots).map(([day, slots]) => (
           <DayColumn key={day}>
             <DayHeader>{formatDay(day)}</DayHeader>
+            <SlotContainer>
             {slots.map((slot, index) => (
               <SlotCell
                 key={index}
@@ -158,6 +159,7 @@ export default function EventTable() {
                 )}
               />
             ))}
+            </SlotContainer>
           </DayColumn>
         ))}
       </Calendar>
@@ -247,7 +249,7 @@ const TimeCell = styled.div`
   margin-bottom: 30px;
   text-align: end;
   &:first-child {
-    margin-top: 23px;
+    margin-top: 43px;
   }
 `;
 
@@ -258,8 +260,14 @@ const DayColumn = styled.div`
 `;
 
 const DayHeader = styled.div`
-  width: 100px;
+  width: 40px;
   margin-bottom: 10px;
+  text-align: center;
+`;
+const SlotContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
 `;
 
 const SlotCell = styled.div`
@@ -268,10 +276,10 @@ const SlotCell = styled.div`
   background-color: ${(props) => (props.isSelected ? "#007bff" : "#f0f0f0")};
   cursor: pointer;
 
-  &:nth-child(2n+1) {
+  &:nth-child(2n) {
     border-bottom: 1px dashed black; // 짝수 번째 SlotCell의 하단 테두리를 점선으로 설정
   }
-  &:nth-child(4n+1) {
+  &:nth-child(4n) {
     border-bottom: 1px solid black; // 짝수 번째 SlotCell의 하단 테두리를 점선으로 설정
   }
 `;
