@@ -178,9 +178,9 @@ const SubmitButton = styled.div`
   justify-content: center;
   cursor: pointer;
   background-color: #70a7ff;
-  color: white;
+  color: black;
   transition: 0.2s ease-in-out;
   &:hover {
-    background-color: #1a237e;
+    background-color: skyblue;
   }
 `;

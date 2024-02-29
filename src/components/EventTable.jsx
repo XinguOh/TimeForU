@@ -20,6 +20,7 @@ export default function EventTable() {
       })
       .then((data) => {
         setEventData(data);
+        console.log(data);
         document.title = `Meet : ${data.title}` || "Meet: For U";
       })
       .catch((error) => {
@@ -28,6 +29,7 @@ export default function EventTable() {
         navigate("/");
       });
   }, [id, navigate]);
+
 
   // 날짜 및 시간 슬롯 그룹화 함수
   const groupTimeSlotsByEventDates = (startDate, endDate) => {
@@ -121,6 +123,7 @@ export default function EventTable() {
   };
 
   if (!eventData) {
+    console.log(eventData);
     return <div>Loading...</div>;
   }
 
@@ -190,6 +193,7 @@ const generateHoursArray = (startTime, endTime) => {
   return hours;
 };
 
+
 // 시간 형식 지정 함수
 const formatTime = (time) => {
   if (time instanceof Date) {
@@ -246,7 +250,7 @@ const TimeColumn = styled.div`
 `;
 
 const TimeCell = styled.div`
-  margin-bottom: 30px;
+  margin:0 5px 30px 0;
   text-align: end;
   &:first-child {
     margin-top: 43px;
@@ -256,7 +260,6 @@ const TimeCell = styled.div`
 const DayColumn = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
 `;
 
 const DayHeader = styled.div`
