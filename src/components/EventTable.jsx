@@ -28,43 +28,36 @@ export default function EventTable() {
       });
   }, [id, navigate]);
 
-  // 날짜 및 시간 슬롯 그룹화 함수
+  
   const groupTimeSlotsByEventDates = (startDate, endDate) => {
     let start = new Date(startDate);
     let end = new Date(endDate);
+    console.log(start, end);
     const dayGroups = {};
-
+  
     while (start <= end) {
       const dayKey = start.toISOString().split("T")[0]; // YYYY-MM-DD 형식의 키
       if (!dayGroups[dayKey]) {
         dayGroups[dayKey] = [];
       }
-
+  
       let currentTime = new Date(start);
-
+  
       const endOfDay = new Date(currentTime);
       endOfDay.setHours(24, 0, 0, 0); // 현재 날짜의 자정
-
+  
       while (currentTime < endOfDay && currentTime <= end) {
-        if (currentTime.getHours() === 0 && currentTime.getMinutes() === 0) {
-          // 12:00AM(자정)일 때는 다음 날로 처리
-          start = new Date(start.setDate(start.getDate() + 1));
-          break; // 다음 날로 넘어갔으므로 현재 날짜에 대한 작업 종료
-        }
-
         dayGroups[dayKey].push(new Date(currentTime));
         currentTime = new Date(currentTime.getTime() + 15 * 60 * 1000); // 15분 증가
       }
-
-      if (!(currentTime < endOfDay && currentTime <= end)) {
-        // 현재 시간이 자정을 넘었는지 확인
-        start = new Date(start.setDate(start.getDate() + 1)); // 다음 날짜로 이동
-      }
+  
+      start = new Date(start.setDate(start.getDate() + 1)); // 다음 날짜로 이동
       start.setHours(0, 0, 0, 0); // 자정으로 설정
     }
-
+  
     return dayGroups;
   };
+  
 
   // 드래그 시작과 끝을 관리하기 위한 상태
   const [dragStartIndex, setDragStartIndex] = useState(null);
@@ -105,6 +98,7 @@ export default function EventTable() {
     setDragEndIndex(null);
     setIsInitiallySelected(false); // 초기 선택 상태 리셋
   };
+  
   if (!eventData) {
     return <div>Loading...</div>;
   }
