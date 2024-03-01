@@ -1,9 +1,9 @@
 import React from "react";
-import EventTable from "../components/EventTable";
+import MyTable from "../components/MyTable";
 export default function EventPage() {
   return (
     <div>
-    <EventTable/>
+    <MyTable />
       </div>
   );
 }
