@@ -35,7 +35,7 @@ export default function MyTable() {
     let start = new Date(startDate);
     let end = new Date(endDate);
     const dayKey = start.toISOString().split("T")[0];
-
+    console.log(dayKey);
     const timeSlots = [];
 
     while (start < end && start.getHours() !== 0) {
@@ -64,9 +64,9 @@ export default function MyTable() {
   );
 
   // 슬롯 클릭 시 선택된 슬롯 변경 및 출력
-  const handleSlotClick = (index) => {
-    setSelectedSlot(index);
-    console.log(timeSlots[index]);
+  const handleSlotClick = (time) => {
+    setSelectedSlot(time);
+    console.log(time);
   };
 
   return (
@@ -78,25 +78,34 @@ export default function MyTable() {
             <TimeCell key={index}>{formatTime(hour)}</TimeCell>
           ))}
         </TimeColumn>
-        {formattedDates.map((date) => (
-          <DayColumn key={date}>
-            <DayHeader>{date}</DayHeader>
-            <SlotContainer>
-              {timeSlots.map((time, index) => (
-                <SlotCell
-                key ={index}
-                  $isSelected={selectedSlot === index} // 선택된 슬롯에 따라 배경색 변경
-                  onClick={() => handleSlotClick(index)} // 클릭 이벤트 처리
-                />
-              ))}
-            </SlotContainer>
+        <DayContainer>
+          <DayColumn>
+            {formattedDates.map((date) => (
+              <DayHeader>{date}</DayHeader>
+            ))}
           </DayColumn>
-        ))}
+
+          <SlotContainer>
+            {timeSlots.map((time) => (
+              <tr key={time}>
+                {formattedDates.map((date) => (
+                  <SlotCell
+                    key={`${time}-${date}`}
+                    $isSelected={
+                      selectedSlot &&
+                      selectedSlot.getTime() === time.getTime()
+                    }
+                    onClick={() => handleSlotClick(time)}
+                  />
+                ))}
+              </tr>
+            ))}
+          </SlotContainer>
+        </DayContainer>
       </Calendar>
     </AppContainer>
   );
 }
-
 
 // 시작 시간과 종료 시간을 기반으로 시간 배열 생성하는 함수
 const generateHoursArray = (startTime, endTime) => {
@@ -168,10 +177,13 @@ const TimeCell = styled.div`
     margin-top: 35px;
   }
 `;
-
-const DayColumn = styled.div`
+const DayContainer = styled.div`
   display: flex;
   flex-direction: column;
+`;
+const DayColumn = styled.div`
+  display: flex;
+  flex-direction: row;
 `;
 
 const DayHeader = styled.div`
@@ -180,14 +192,14 @@ const DayHeader = styled.div`
   font-size: 12px;
   text-align: center;
 `;
-const SlotContainer = styled.div`
+const SlotContainer = styled.table`
   display: flex;
   flex-direction: column;
   border: 1px solid black;
 `;
 
-const SlotCell = styled.div`
-  height: 10px;
+const SlotCell = styled.td`
+  height: 8px;
   width: 40px;
   background-color: ${(props) => (props.$isSelected ? "#007bff" : "#f0f0f0")};
   cursor: pointer;
