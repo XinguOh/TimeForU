@@ -34,9 +34,8 @@ export default function MainPage() {
   const navigate = useNavigate();
   const handleSelect = (ranges) => {
     setDateRange([ranges.selection]);
-    // Reset default time only for endTime when selecting date range
-    setEndTime(ranges.selection.endDate); // Only update endTime
   };
+
   const handleButtonClick = async () => {
     // 제목이 비어 있는지 확인
     if (!title.trim()) {
