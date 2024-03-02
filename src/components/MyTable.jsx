@@ -34,17 +34,23 @@ export default function MyTable() {
   const groupTimeSlotsByEventDates = (startDate, endDate) => {
     let start = new Date(startDate);
     let end = new Date(endDate);
-    const dayKey = start.toISOString().split("T")[0];
-    console.log(dayKey);
     const timeSlots = [];
-
-    while (start < end && start.getHours() !== 0) {
+    // 시작 시간 저장 (예: 9시)
+    const startHour = start.getHours();
+  
+    while (start <= end) {
       timeSlots.push(new Date(start));
-      start.setMinutes(start.getMinutes() + 15);
+      start.setMinutes(start.getMinutes() + 15); // 15분 증가
+  
+      // start의 시간이 end의 시간과 같아지면 다음 날로 넘어감
+      if (start.getHours() === end.getHours()) {
+        start.setDate(start.getDate() + 1); // 다음 날로 설정
+        start.setHours(startHour, 0, 0, 0); // 다음 날의 시작 시간을 오전 9시로 설정
+      }
     }
-
     return timeSlots;
   };
+  
 
   const startTime = new Date(eventData.startDate);
   const endTime = new Date(eventData.endDate);
@@ -86,19 +92,18 @@ export default function MyTable() {
           </DayColumn>
 
           <SlotContainer>
-            {timeSlots.map((time) => (
-              <tr key={time}>
-                {formattedDates.map((date) => (
+            {formattedDates.map((date) => (
+              <div>
+                {timeSlots.map((time) => (
                   <SlotCell
                     key={`${time}-${date}`}
                     $isSelected={
-                      selectedSlot &&
-                      selectedSlot.getTime() === time.getTime()
+                      selectedSlot && selectedSlot.getTime() === time.getTime()
                     }
                     onClick={() => handleSlotClick(time)}
                   />
                 ))}
-              </tr>
+              </div>
             ))}
           </SlotContainer>
         </DayContainer>
@@ -171,7 +176,7 @@ const TimeColumn = styled.div`
 `;
 
 const TimeCell = styled.div`
-  margin: 0 5px 30px 0;
+  margin: 0 5px 22px 0;
   text-align: end;
   &:first-child {
     margin-top: 35px;
@@ -192,13 +197,13 @@ const DayHeader = styled.div`
   font-size: 12px;
   text-align: center;
 `;
-const SlotContainer = styled.table`
-  display: flex;
-  flex-direction: column;
+const SlotContainer = styled.div`
+display : flex;
+flex-direction: column; 
   border: 1px solid black;
 `;
 
-const SlotCell = styled.td`
+const SlotCell = styled.div`
   height: 8px;
   width: 40px;
   background-color: ${(props) => (props.$isSelected ? "#007bff" : "#f0f0f0")};
