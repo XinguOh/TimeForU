@@ -1,47 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-export default function MyTable() {
-  const { id } = useParams();
-  const [eventData, setEventData] = useState(null);
-  const [selectedSlot, setSelectedSlot] = useState(null); // 선택된 슬롯 상태 추가
-  const navigate = useNavigate();
+export default function MyTable({value, eventData}) {
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [selectedSlots, setSelectedSlots] = useState([]);
+  // 드래그 시작과 끝을 관리하기 위한 상태
+  const [dragStartIndex, setDragStartIndex] = useState(null);
+  const [dragEndIndex, setDragEndIndex] = useState(null);
+  // 드래그 시작 시 선택 상태를 확인하고 저장하기 위한 상태 추가
+  const [isInitiallySelected, setIsInitiallySelected] = useState(false);
 
-  useEffect(() => {
-    fetch(`http://localhost:5000/events/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Event not found");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setEventData(data);
-        document.title = `Meet : ${data.title}` || "Meet: For U";
-      })
-      .catch((error) => {
-        console.error("Error fetching event data:", error);
-        alert("존재하지 않는 링크입니다. 새로 생성해주세요.");
-        navigate("/");
-      });
-  }, [id, navigate]);
-
-  if (!eventData) {
-    return <div>Loading...</div>;
-  }
-
+  /* -----------------------시간 관련---------------------- */
   const groupTimeSlotsByEventDates = (startDate, endDate) => {
     let start = new Date(startDate);
     let end = new Date(endDate);
     const timeSlots = [];
     // 시작 시간 저장 (예: 9시)
     const startHour = start.getHours();
-  
+
     while (start <= end) {
       timeSlots.push(new Date(start));
       start.setMinutes(start.getMinutes() + 15); // 15분 증가
-  
+
       // start의 시간이 end의 시간과 같아지면 다음 날로 넘어감
       if (start.getHours() === end.getHours()) {
         start.setDate(start.getDate() + 1); // 다음 날로 설정
@@ -50,7 +30,6 @@ export default function MyTable() {
     }
     return timeSlots;
   };
-  
 
   const startTime = new Date(eventData.startDate);
   const endTime = new Date(eventData.endDate);
@@ -69,15 +48,47 @@ export default function MyTable() {
     eventData.endDate
   );
 
-  // 슬롯 클릭 시 선택된 슬롯 변경 및 출력
-  const handleSlotClick = (time) => {
-    setSelectedSlot(time);
-    console.log(time);
+  const handleMouseDown = (index) => {
+    setIsMouseDown(true);
+    setDragStartIndex(index);
+    setDragEndIndex(index); // 드래그 시작 시, 시작점과 끝점 동일하게 설정
+    setIsInitiallySelected(selectedSlots.includes(index));
   };
 
+  const handleMouseOver = (index) => {
+    if (isMouseDown) {
+      setDragEndIndex(index);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+    // 드래그 종료 시 선택 범위 내의 슬롯들에 대한 선택 상태 토글
+    const newSelectedSlots = new Set(selectedSlots);
+    for (
+      let i = Math.min(dragStartIndex, dragEndIndex);
+      i <= Math.max(dragStartIndex, dragEndIndex);
+      i++
+    ) {
+      if (isInitiallySelected) {
+        newSelectedSlots.delete(i); // 이미 선택된 상태였다면 선택 해제
+      } else {
+        newSelectedSlots.add(i); // 선택되지 않은 상태였다면 선택
+      }
+    }
+    setSelectedSlots(Array.from(newSelectedSlots));
+    setDragStartIndex(null);
+    setDragEndIndex(null);
+    setIsInitiallySelected(false); // 초기 선택 상태 리셋
+  };
+
+  /* -----------------------출력 관련---------------------- */
   return (
     <AppContainer>
-      <h2>{eventData.title}</h2>
+    <h2>{value === 1 ?
+     "가능한 일정" : value === 2 ? 
+      "변경 가능한 일정": 
+      "총 가능 일정"}</h2>
       <Calendar>
         <TimeColumn>
           {hours.map((hour, index) => (
@@ -92,17 +103,22 @@ export default function MyTable() {
           </DayColumn>
 
           <SlotContainer>
-            {formattedDates.map((date) => (
-              <div>
-                {timeSlots.map((time) => (
-                  <SlotCell
-                    key={`${time}-${date}`}
-                    $isSelected={
-                      selectedSlot && selectedSlot.getTime() === time.getTime()
-                    }
-                    onClick={() => handleSlotClick(time)}
-                  />
-                ))}
+            {formattedDates.map((formattedDate) => (
+              <div key={formattedDate}>
+                {timeSlots.map((time,index) => {
+                  const timeAsString = formatDay(time); // time을 formattedDate와 동일한 형식으로 변환
+                  return (
+                    timeAsString === formattedDate && (
+                      <SlotCell
+                        key={`${time.getTime()}`}
+                        onMouseDown={() => handleMouseDown(index)}
+                        onMouseOver={() => handleMouseOver(index)}
+                        onMouseUp={handleMouseUp}
+                        $isSelected={selectedSlots.includes(index)}
+                      />
+                    )
+                  );
+                })}
               </div>
             ))}
           </SlotContainer>
@@ -119,7 +135,7 @@ const generateHoursArray = (startTime, endTime) => {
   while (currentHour <= endTime) {
     hours.push(new Date(currentHour));
     currentHour = new Date(currentHour.getTime() + 60 * 60 * 1000); // 1시간 증가
-    if (currentHour.getHours() === 1) {
+    if (currentHour.getHours() === endTime.getHours() + 1) {
       return hours;
     }
   }
@@ -161,6 +177,7 @@ const AppContainer = styled.div`
   align-items: center;
   font-family: "Lato";
   color: #1a237e;
+  margin-left : 100px;
 `;
 
 const Calendar = styled.div`
@@ -179,7 +196,7 @@ const TimeCell = styled.div`
   margin: 0 5px 22px 0;
   text-align: end;
   &:first-child {
-    margin-top: 35px;
+    margin-top: 30px;
   }
 `;
 const DayContainer = styled.div`
@@ -193,13 +210,13 @@ const DayColumn = styled.div`
 
 const DayHeader = styled.div`
   width: 40px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   font-size: 12px;
   text-align: center;
 `;
 const SlotContainer = styled.div`
-display : flex;
-flex-direction: column; 
+  display: flex;
+  flex-direction: row;
   border: 1px solid black;
 `;
 
@@ -208,6 +225,7 @@ const SlotCell = styled.div`
   width: 40px;
   background-color: ${(props) => (props.$isSelected ? "#007bff" : "#f0f0f0")};
   cursor: pointer;
+  border-right: 1px solid black;
 
   &:nth-child(2n) {
     border-bottom: 1px dashed black; // 짝수 번째 SlotCell의 하단 테두리를 점선으로 설정
