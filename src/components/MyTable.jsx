@@ -190,6 +190,7 @@ const TimeColumn = styled.div`
   display: flex;
   flex-direction: column;
   font-size: 10px;
+  width : 50px;
 `;
 
 const TimeCell = styled.div`
